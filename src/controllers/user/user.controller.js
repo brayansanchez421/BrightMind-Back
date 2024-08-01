@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import { setSend } from "../../helpers/setSend.js";
 import {sendDeleteAccountConfirmationEmail, sendDeleteUserEmail, sendRegistrationEmailWithTemporaryPassword} from "../../helpers/email/emailRegister.js"
 
+// Crear un nuevo usuario
 export const createUser = async (req, res) => {
     const { username, email, role } = req.body;
 
@@ -26,7 +27,6 @@ export const createUser = async (req, res) => {
         // Generar una contraseña temporal aleatoria
         const temporaryPassword = Math.random().toString(36).substring(2, 10);
         const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
-
 
         // Crear el nuevo usuario con el ID del rol encontrado
         const newUser = new User({ username, email, password: hashedPassword, role: roleObject._id });
@@ -49,7 +49,7 @@ export const createUser = async (req, res) => {
     }
 };
 
-
+// Actualizar un usuario
 export const updateUser = async (req, res) => {
     const { id } = req.params;
     const { username, email, state, role, userImage } = req.body;
@@ -82,6 +82,7 @@ export const updateUser = async (req, res) => {
     }
 };
 
+// Registrar a un usuario en un curso
 export const registerToCourse = async (req, res) => {
     const { userId, courseId } = req.body;
 
@@ -111,7 +112,7 @@ export const registerToCourse = async (req, res) => {
     }
 };
 
-
+// Obtener los cursos de un usuario
 export const getUserCourses = async (req, res) => {
     try {
       const userId = req.params.userId;
@@ -124,11 +125,9 @@ export const getUserCourses = async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Error al obtener cursos del usuario' });
     }
-  };
+};
 
-
-
-
+// Obtener un usuario por ID
 export const getUser = async (req, res) => {
     const { id } = req.params;
 
@@ -153,7 +152,7 @@ export const getUser = async (req, res) => {
     }
 };
 
-
+// Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
     try {
         const users = await User.find().populate('role', 'nombre'); // Hacer el populate solo en el campo 'nombre'
@@ -167,9 +166,7 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-
-
-
+// Eliminar un usuario
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
 
@@ -193,6 +190,7 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+// Confirmación de eliminación de usuario
 export const deleteUserConfirmation = async (req, res) => {
     const { id } = req.params;
     const { confirmationCode } = req.body;
@@ -218,6 +216,7 @@ export const deleteUserConfirmation = async (req, res) => {
     }
 };
 
+// Generar código de confirmación
 const generateConfirmationCode = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let confirmationCode = '';
@@ -228,3 +227,33 @@ const generateConfirmationCode = () => {
 
     return confirmationCode;
 };
+
+// Cambiar contraseña de usuario
+export const changePassword = async (req, res) => {
+    const { email, newPassword } = req.body;
+    console.log('Received email:', email);
+    console.log('Received newPassword:', newPassword);
+
+    try {
+        // Verificar que el usuario existe
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // Hashear la nueva contraseña
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Actualizar la contraseña del usuario
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ msg: "Password updated successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+
