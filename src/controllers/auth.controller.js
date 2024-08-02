@@ -203,8 +203,8 @@ export const activate = async (req, res) => {
       return res.status(404).json(setSend( "Usuario no encontrado" ));
     }
 
-    userFound.state = !userFound.state;
-    await userFound.save();
+    userFound.state = true; //Correciones de los estados del usuario
+    await userFound.save(); //Correcion 
 
     return res.redirect('http://localhost:5173/activate');
   } catch (error) {
