@@ -15,13 +15,19 @@ export const createUser = async (req, res) => {
         // Verificar si el correo ya está registrado
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json(setSend("Email already exists"));
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        // Verificar si el nombre de usuario ya existe en la base de datos.
+        const existingName = await User.findOne({ username });
+        if (existingName) {
+            return res.status(400).json({ message: "Username already exists" });
         }
 
         // Buscar el ID del rol por nombre
         const roleObject = await Role.findOne({ nombre: role });
         if (!roleObject) {
-            return res.status(404).json({ msg: 'Role not found' });
+            return res.status(404).json({ message: 'Role not found' });
         }
 
         // Generar una contraseña temporal aleatoria
@@ -45,7 +51,16 @@ export const createUser = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json(setSend("Internal server error"));
+        if (error.code === 11000) { // Error de duplicado
+            const field = Object.keys(error.keyValue)[0]; // Obtiene el campo que causó el error
+            if (field === 'email') {
+                return res.status(400).json({ message: "Email already exists" });
+            }
+            if (field === 'username') {
+                return res.status(400).json({ message: "Username already exists" });
+            }
+        }
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 

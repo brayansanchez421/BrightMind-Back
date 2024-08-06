@@ -17,50 +17,57 @@ export const sendResetEmail = async (email) => {
       to: email,
       subject: "Password changed succesfully",
       html: `<!DOCTYPE html>
-        <html lang="es">
-        <head>
+      <html lang="en">
+      <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Your password has been changed correctly</title>
+        <title>Password Changed Successfully</title>
         <style>
-        body {
-          font-family: Arial, sans-serif;
-          color: #333;
-          margin: 0;
-          padding: 0;
-        }
-        .container {
-          max-width: 600px;
-          margin: 20px auto;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #f9f9f9;
-        }
-        .logo {
-          max-width: 100px;
-          display: block;
-          margin: 0 auto;
-        }
-        h1 {
-          color: #007bff; 
-        }
-        p {
-          color: #333;
-        }
-        strong {
-          color: #007bff;
-        }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+          }
+          .container {
+           max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+          }
+          .logo {
+            max-width: 100px;
+            margin: 0 auto 20px;
+          }
+          h1 {
+            color: #007bff;
+            font-size: 24px;
+            margin-top: 0;
+            font-weight: bold;
+          }
+          p {
+            color: #333;
+            line-height: 1.6;
+            margin: 10px 0;
+          }
         </style>
-        </head>
-        <body>
+      </head>
+      <body>
         <div class="container">
-        <img src="https://media.discordapp.net/attachments/1214959339413180517/1224352644148101140/doko_avatar_new.png?ex=662fa341&is=661d2e41&hm=1792584a263e87ccb6aa3f4a7b3931479bfc00c9f4609643a80d685444568d6b&=&format=webp&quality=lossless&width=543&height=498" alt="Logo de la empresa" class="logo">
-        <h1>Password changed succesfully.</h1>
-        <p>your Password has been succesfully edited </p>
+          <img src="https://i.pinimg.com/originals/39/2c/86/392c86f7ba1c2600562cd0f36313fc20.png" alt="Company Logo" class="logo">
+          <h1>Password Changed Successfully</h1>
+          <p>Your password has been updated successfully.</p>
         </div>
-        </body>
-        </html>`,
+      </body>
+      </html>`,
     };
   
     return new Promise((resolve, reject) => {
