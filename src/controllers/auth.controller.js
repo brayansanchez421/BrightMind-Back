@@ -224,7 +224,8 @@ export const verifyToken = async (req, res) => {
     }
 
     console.log("Datos del usuario del token:", user);
-    const userFound = await User.findOne({ email: user.email });
+
+    const userFound = await User.findOne({ email: user.email }).populate('role', 'nombre');
     console.log("Usuario encontrado:", userFound);
 
     if (!userFound) {
@@ -234,18 +235,18 @@ export const verifyToken = async (req, res) => {
 
     console.log("Datos del usuario encontrados:", {
       id: userFound._id,
+      role: userFound.role.nombre,
       username: userFound.username,
       email: userFound.email,
       courses: userFound.courses,
-
     });
 
     return res.json({
       id: userFound._id,
+      role: userFound.role.nombre,
       username: userFound.username,
       email: userFound.email,
       courses: userFound.courses,
-
     });
   });
 };
