@@ -8,6 +8,7 @@ import { setSend } from "../../helpers/setSend.js";
 import {sendDeleteAccountConfirmationEmail, sendDeleteUserEmail, sendRegistrationEmailWithTemporaryPassword} from "../../helpers/email/emailRegister.js"
 
 // Crear un nuevo usuario
+// Crear un nuevo usuario
 export const createUser = async (req, res) => {
     const { username, email, role } = req.body;
 
@@ -24,23 +25,23 @@ export const createUser = async (req, res) => {
             return res.status(400).json({ message: "Username already exists" });
         }
 
-        // Buscar el ID del rol por nombre
+        // Verificar si el rol existe
         const roleObject = await Role.findOne({ nombre: role });
         if (!roleObject) {
             return res.status(404).json({ message: 'Role not found' });
         }
 
-        // Generar una contraseña temporal aleatoria
+        // Crear y guardar el nuevo usuario
         const temporaryPassword = Math.random().toString(36).substring(2, 10);
         const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
-        // Crear el nuevo usuario con el ID del rol encontrado
         const newUser = new User({ username, email, password: hashedPassword, role: roleObject._id });
         const userSaved = await newUser.save();
 
-        // Enviar el correo electrónico de registro con la contraseña temporal
+        // Enviar el correo de registro
         await sendRegistrationEmailWithTemporaryPassword(email, username, temporaryPassword);
 
+        // Responder con éxito
         res.json({
             id: userSaved._id,
             username: userSaved.username,
@@ -51,15 +52,23 @@ export const createUser = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        if (error.code === 11000) { // Error de duplicado
-            const field = Object.keys(error.keyValue)[0]; // Obtiene el campo que causó el error
+
+        // Manejo de errores específicos
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: "Validation error", details: error.errors });
+        } else if (error.name === 'CastError') {
+            return res.status(400).json({ message: `Invalid ${error.path}: ${error.value}` });
+        } else if (error.code === 11000) { // Error de duplicado
+            const field = Object.keys(error.keyValue)[0];
             if (field === 'email') {
                 return res.status(400).json({ message: "Email already exists" });
             }
             if (field === 'username') {
                 return res.status(400).json({ message: "Username already exists" });
             }
+            return res.status(400).json({ message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists` });
         }
+
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -211,19 +220,30 @@ export const deleteUserConfirmation = async (req, res) => {
     const { confirmationCode } = req.body;
 
     try {
+        // Busca al usuario por ID
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json(setSend("User not found"));
         }
 
+        // Verifica el código de confirmación
         if (user.deleteCode !== confirmationCode) {
             return res.status(400).json(setSend("Invalid confirmation code"));
         }
 
+        // Elimina al usuario de la base de datos
         await User.findByIdAndDelete(id);
 
+        // Envía un correo electrónico de confirmación de eliminación
         await sendDeleteUserEmail(user.email);
 
+        // Opcional: Limpia cualquier cookie relacionada con el usuario si es necesario
+        res.cookie("token", "", {
+            expires: new Date(0),
+            httpOnly: true,
+        });
+
+        // Envía una respuesta de éxito
         res.status(200).json(setSend("User deleted successfully"));
     } catch (error) {
         console.error(error);

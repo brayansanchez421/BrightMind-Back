@@ -109,10 +109,23 @@ export const passwordReset = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password} = req.body;
+    const { username, email, password } = req.body;
+
+    // Verificar si el nombre de usuario o el correo electrónico ya existen
+    const existingUserByEmail = await User.findOne({ email });
+    const existingUserByUsername = await User.findOne({ username });
+
+    if (existingUserByEmail) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
+
+    if (existingUserByUsername) {
+      return res.status(400).json({ msg: "Username already exists" });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, email, password: passwordHash});
+    const newUser = new User({ username, email, password: passwordHash });
     const userSaved = await newUser.save();
     const token = await createAccessToken({ id: userSaved._id, role: userSaved.role });
 
@@ -125,15 +138,16 @@ export const register = async (req, res) => {
       email: userSaved.email,
       createdAt: userSaved.createdAt,
       updatedAt: userSaved.updatedAt,
-      message: "successful registration",
+      message: "Successful registration",
       token: token
     });
   } catch (error) {
     console.error(error);
     if (error.code === 11000) {
-      res.status(400).json(setSend("email already exits"));
+      // Manejo para errores de duplicación en MongoDB
+      res.status(400).json({ msg: "Duplicate field error" });
     } else {
-      res.status(500).json(setSend("Internal server error"));
+      res.status(500).json({ msg: "Internal server error" });
     }
   }
 };
