@@ -9,6 +9,7 @@ import {
     updateCourse, 
     deleteCourse, 
     getCoursesByCategory,
+    deleteResourceFromCourse,
     asignarContenido // Importar la función asignarContenido
 } from "../../controllers/courses/course.controller.js";
 
@@ -28,5 +29,5 @@ router.post('/asignarContenido/:id', uploadContent.single('content'), asignarCon
 router.put('/updateCourse/:id', uploadImage.single('image'), updateCourse);
 router.put('/updateCourse/:id', updateCourse);
 router.delete('/deleteCourse/:id', deleteCourse);
-
+router.delete('/courses/:courseId/resources/:resourceIndex', deleteResourceFromCourse); //Se agrego esta ruta para eliminar recursos de la base de datos
 export default router;

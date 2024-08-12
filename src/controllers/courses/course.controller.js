@@ -134,6 +134,8 @@ export const updateCourse = async (req, res) => {
         res.status(500).json({ msg: 'Internal server error' });
     }
 };
+
+
 export const asignarContenido = async (req, res) => {
     const { id } = req.params;
     const contentPath  = req.file.path; // Obtener el path del archivo de contenido del cuerpo de la solicitud
@@ -233,4 +235,34 @@ export const getCoursesByCategory = async (req, res) => {
         console.error(error);
         res.status(500).json(setSend("Internal server error"));
     }
+};
+
+//Se agrega esta función para la eliminación de Recursos de la base de datos.
+export const deleteResourceFromCourse = async (req, res) => {
+  const { courseId, resourceIndex } = req.params;
+
+  try {
+    // Encuentra el curso por ID
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ msg: 'Course not found' });
+    }
+
+    // Asegúrate de que el índice del recurso esté dentro del rango
+    if (resourceIndex < 0 || resourceIndex >= course.content.length) {
+      return res.status(400).json({ msg: 'Invalid resource index' });
+    }
+
+    // Elimina el recurso del array de contenido
+    course.content.splice(resourceIndex, 1);
+
+    // Guarda los cambios en el curso
+    await course.save();
+
+    return res.status(200).json({ msg: 'Resource deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting resource:', error);
+    return res.status(500).json({ msg: 'Server error' });
+  }
 };
