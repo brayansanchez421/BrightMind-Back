@@ -92,7 +92,7 @@ export const sendRegistrationEmail = async (email, name, userSaved) => {
           <h1>Congratulations! You have been registered successfully</h1>
           <p>Hello ${name},</p>
           <p>We are delighted to have you with us. Please activate your account by clicking the link below:</p>
-          <p><a href="http://localhost:3068/PE/activation/${userSaved._id}" class="btn">Activate Account</a></p>
+          <p><a href="https://brightmind-back.onrender.com/PE/activation/${userSaved._id}" class="btn">Activate Account</a></p>
           <div class="footer">
             <p>If you did not request this activation, please ignore this email.</p>
           </div>
