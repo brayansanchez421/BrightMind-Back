@@ -15,7 +15,7 @@ dotenv.config();
 
 // ToDo: app.on()
 app.use(cors({
-    origin: 'https://plataformbrightmind.netlify.app/',
+    origin: 'https://plataformbrightmind.netlify.app',
     credentials: true
 
 }));
