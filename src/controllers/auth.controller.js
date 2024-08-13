@@ -220,7 +220,7 @@ export const activate = async (req, res) => {
     userFound.state = true; //Correciones de los estados del usuario
     await userFound.save(); //Correcion 
 
-    return res.redirect('http://localhost:5173/activate');
+    return res.redirect('https://plataformbrightmind.netlify.app/activate');
   } catch (error) {
     return res.status(500).json(setSend( "Error en el servidor al activar usuario", error ));
   }
